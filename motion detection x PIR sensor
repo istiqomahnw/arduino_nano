@@ -1,0 +1,51 @@
+#include <SoftwareSerial.h>
+#include <DFPlayer_Mini_Mp3.h> //DF Player Library
+
+#define pin_pir 2
+#define pin_buzzer 4
+
+#define pir digitalRead(pin_pir)
+#define buz_on digitalWrite(pin_buzzer,HIGH)
+#define buz_off digitalWrite(pin_buzzer,LOW)
+
+
+SoftwareSerial mySerial(6, 5); // RX, TX
+void setup() {
+  Serial.begin(9600);
+  mySerial.begin(9600);
+  pinMode(pin_pir,INPUT);
+  digitalWrite(pin_pir,LOW);
+  pinMode(pin_buzzer,OUTPUT);
+  mp3_set_serial(mySerial);
+  mp3_set_volume(100);
+  mp3_play(0);
+  delay(2000);
+
+  digitalWrite(pin_buzzer,LOW);
+
+}
+bool flag=0;
+void loop() {
+if (pir){
+  if(flag==1){    // 1 = motion detected
+    Serial.print("BAHAYA:");  //DANGER
+    Serial.println(pir);
+    flag=0;
+  }
+  buz_on;
+  delay(100);
+  buz_off;
+  delay(100);
+  mp3_play(1);
+  delay(7000);
+  mp3_stop();
+
+}else{
+  buz_off;
+  if(flag==0){  // 0 = no motion detected
+    Serial.print("AMAN:");  //SAFE
+    Serial.println(pir);
+    flag=1;
+  }
+}
+}
